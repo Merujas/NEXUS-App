@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} - NEXUS</title>
+    
+    <!-- TailwindCSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts - JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'nexus-bg': '#0d1117',
+                        'nexus-card': '#161b22',
+                        'nexus-border': '#30363d',
+                        'nexus-text': '#c9d1d9',
+                        'nexus-green': '#3fb950',
+                        'nexus-red': '#f85149',
+                        'nexus-blue': '#58a6ff',
+                        'nexus-yellow': '#d29922',
+                        'nexus-purple': '#a371f7'
+                    },
+                    fontFamily: {
+                        'mono': ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background-color: #0d1117;
+            color: #c9d1d9;
+        }
+        
+        .glow-green { box-shadow: 0 0 20px rgba(63, 185, 80, 0.15); }
+        .glow-red { box-shadow: 0 0 20px rgba(248, 81, 73, 0.15); }
+        .glow-blue { box-shadow: 0 0 20px rgba(88, 166, 255, 0.15); }
+        
+        /* Custom range slider */
+        input[type="range"] {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background: #30363d;
+            border-radius: 4px;
+            height: 8px;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #58a6ff;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #58a6ff;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Header -->
+    <header class="bg-nexus-card border-b border-nexus-border px-6 py-4">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <a href="/" class="text-2xl font-bold text-nexus-blue">NEXUS</a>
+                <span class="text-xs text-nexus-text/50 bg-nexus-border/50 px-2 py-1 rounded">v1.0.0</span>
+            </div>
+            
+            <nav class="flex items-center space-x-6">
+                <a href="/" class="text-nexus-text/70 hover:text-nexus-text transition">Dashboard</a>
+                <a href="/predictions" class="text-nexus-blue hover:text-nexus-blue/80 transition">Predicciones</a>
+                <a href="/portfolio" class="text-nexus-text/70 hover:text-nexus-text transition">Portfolio</a>
+            </nav>
+            
+            <div class="flex items-center space-x-4">
+                <div id="user-points" class="flex items-center space-x-2 bg-nexus-bg px-3 py-2 rounded-lg border border-nexus-border">
+                    <span class="text-nexus-yellow">&#9733;</span>
+                    <span class="text-nexus-text font-semibold">--</span>
+                    <span class="text-nexus-text/50 text-xs">puntos</span>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-6 py-8">
+        <div class="flex items-center justify-between mb-8">
+            <div>
+                <h1 class="text-2xl font-bold text-nexus-text mb-2">Predicciones IA</h1>
+                <p class="text-nexus-text/50">Apuesta en las predicciones generadas por nuestro modelo Ensemble ML</p>
+            </div>
+            <div class="flex items-center space-x-2 bg-nexus-purple/10 text-nexus-purple px-4 py-2 rounded-lg">
+                <span>&#9889;</span>
+                <span class="text-sm">RandomForest + LogisticRegression</span>
+            </div>
+        </div>
+        
+        <!-- Predictions Grid -->
+        <div id="predictions-grid" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+            <!-- Cards se generan dinámicamente -->
+            <div class="bg-nexus-card border border-nexus-border rounded-lg p-6 animate-pulse">
+                <div class="h-8 bg-nexus-border rounded w-24 mb-4"></div>
+                <div class="h-12 bg-nexus-border rounded w-full mb-4"></div>
+                <div class="h-6 bg-nexus-border rounded w-32"></div>
+            </div>
+        </div>
+        
+        <!-- Betting Modal -->
+        <div id="bet-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+            <div class="bg-nexus-card border border-nexus-border rounded-xl p-6 w-full max-w-md mx-4">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-bold text-nexus-text">Crear Apuesta</h3>
+                    <button onclick="closeBetModal()" class="text-nexus-text/50 hover:text-nexus-text text-2xl">&times;</button>
+                </div>
+                
+                <div id="modal-content">
+                    <!-- Contenido dinámico -->
+                </div>
+                
+                <form id="bet-form" onsubmit="submitBet(event)">
+                    <input type="hidden" id="bet-symbol" value="">
+                    <input type="hidden" id="bet-direction" value="">
+                    
+                    <div class="mb-6">
+                        <label class="block text-nexus-text/70 text-sm mb-2">Cantidad de Puntos</label>
+                        <div class="flex items-center space-x-4">
+                            <input type="range" id="bet-amount" min="10" max="500" value="50" 
+                                   class="flex-1" oninput="updateBetPreview()">
+                            <span id="bet-amount-display" class="text-nexus-blue font-bold text-lg w-20 text-right">50</span>
+                        </div>
+                        <div class="flex justify-between text-nexus-text/50 text-xs mt-1">
+                            <span>10 pts</span>
+                            <span>500 pts</span>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-nexus-bg rounded-lg p-4 mb-6">
+                        <div class="flex justify-between mb-2">
+                            <span class="text-nexus-text/70">Odds estimados:</span>
+                            <span id="bet-odds" class="text-nexus-text font-semibold">1.50x</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-nexus-text/70">Ganancia potencial:</span>
+                            <span id="bet-potential" class="text-nexus-green font-bold">75 pts</span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex space-x-4">
+                        <button type="button" onclick="closeBetModal()" 
+                                class="flex-1 bg-nexus-border hover:bg-nexus-border/70 text-nexus-text py-3 rounded-lg transition">
+                            Cancelar
+                        </button>
+                        <button type="submit" 
+                                class="flex-1 bg-nexus-blue hover:bg-nexus-blue/80 text-white py-3 rounded-lg font-semibold transition">
+                            Confirmar Apuesta
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="border-t border-nexus-border mt-12 py-6">
+        <div class="max-w-7xl mx-auto px-6 flex items-center justify-between text-nexus-text/50 text-sm">
+            <p>&copy; 2026 NEXUS. Predicciones Geopolíticas con IA.</p>
+            <a href="/api/docs" class="hover:text-nexus-text transition">API Docs</a>
+        </div>
+    </footer>
+    
+    <!-- JavaScript -->
+    <script>
+        const API_BASE = '';
+        const USER_ID = 1;
+        
+        const SYMBOLS = {
+            'BTC-USD': { name: 'Bitcoin', short: 'BTC', color: 'nexus-yellow', icon: '₿' },
+            'ETH-USD': { name: 'Ethereum', short: 'ETH', color: 'nexus-purple', icon: 'Ξ' },
+            'XRP-USD': { name: 'Ripple', short: 'XRP', color: 'nexus-blue', icon: '✕' },
+            'GLD': { name: 'Gold ETF', short: 'GLD', color: 'nexus-yellow', icon: '🥇' },
+            'DX-Y.NYB': { name: 'USD Index', short: 'DXY', color: 'nexus-green', icon: '$' }
+        };
+        
+        let currentPrediction = null;
+        
+        // Formatear precio
+        function formatPrice(price) {
+            if (price >= 1000) {
+                return '$' + price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            }
+            return '$' + price.toFixed(price >= 1 ? 2 : 4);
+        }
+        
+        // Cargar predicciones
+        async function loadPredictions() {
+            const grid = document.getElementById('predictions-grid');
+            grid.innerHTML = '';
+            
+            for (const symbol of Object.keys(SYMBOLS)) {
+                try {
+                    const response = await fetch(`${API_BASE}/api/prediction/${symbol}`);
+                    const prediction = await response.json();
+                    
+                    const info = SYMBOLS[symbol];
+                    const isUp = prediction.direction === 'SUBIR';
+                    const borderColor = isUp ? 'border-nexus-green/30 hover:border-nexus-green' : 'border-nexus-red/30 hover:border-nexus-red';
+                    const glowClass = isUp ? 'glow-green' : 'glow-red';
+                    const directionColor = isUp ? 'text-nexus-green bg-nexus-green/10' : 'text-nexus-red bg-nexus-red/10';
+                    const arrow = isUp ? '&#9650;' : '&#9660;';
+                    
+                    const card = document.createElement('div');
+                    card.className = `bg-nexus-card border ${borderColor} rounded-xl p-6 transition cursor-pointer ${glowClass}`;
+                    card.innerHTML = `
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-12 h-12 bg-nexus-border rounded-full flex items-center justify-center">
+                                    <span class="text-${info.color} text-xl font-bold">${info.icon}</span>
+                                </div>
+                                <div>
+                                    <h3 class="text-nexus-text font-bold text-lg">${info.name}</h3>
+                                    <p class="text-nexus-text/50 text-sm">${symbol}</p>
+                                </div>
+                            </div>
+                            <div class="${directionColor} px-3 py-1 rounded-lg">
+                                <span>${arrow}</span>
+                                <span class="font-semibold">${prediction.direction}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <p class="text-nexus-text/70 text-sm mb-1">Precio Actual</p>
+                            <p class="text-nexus-text text-2xl font-bold">${formatPrice(prediction.current_price)}</p>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="text-nexus-text/70">Confianza</span>
+                                <span class="text-nexus-text font-semibold">${prediction.confidence.toFixed(0)}%</span>
+                            </div>
+                            <div class="h-2 bg-nexus-border rounded-full overflow-hidden">
+                                <div class="h-full ${isUp ? 'bg-nexus-green' : 'bg-nexus-red'} rounded-full transition-all duration-500"
+                                     style="width: ${prediction.confidence}%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-3">
+                            <button onclick='openBetModal(${JSON.stringify(prediction).replace(/'/g, "&#39;")}, "SUBIR")'
+                                    class="bg-nexus-green/10 hover:bg-nexus-green/20 text-nexus-green border border-nexus-green/30 
+                                           py-2 rounded-lg font-semibold transition flex items-center justify-center space-x-2">
+                                <span>&#9650;</span>
+                                <span>Apostar SUBE</span>
+                            </button>
+                            <button onclick='openBetModal(${JSON.stringify(prediction).replace(/'/g, "&#39;")}, "BAJAR")'
+                                    class="bg-nexus-red/10 hover:bg-nexus-red/20 text-nexus-red border border-nexus-red/30 
+                                           py-2 rounded-lg font-semibold transition flex items-center justify-center space-x-2">
+                                <span>&#9660;</span>
+                                <span>Apostar BAJA</span>
+                            </button>
+                        </div>
+                    `;
+                    
+                    grid.appendChild(card);
+                } catch (error) {
+                    console.error(`Error loading prediction for ${symbol}:`, error);
+                }
+            }
+        }
+        
+        // Abrir modal de apuesta
+        function openBetModal(prediction, direction) {
+            currentPrediction = prediction;
+            document.getElementById('bet-symbol').value = prediction.symbol;
+            document.getElementById('bet-direction').value = direction;
+            
+            const info = SYMBOLS[prediction.symbol];
+            const isUp = direction === 'SUBIR';
+            const dirColor = isUp ? 'text-nexus-green' : 'text-nexus-red';
+            const arrow = isUp ? '&#9650;' : '&#9660;';
+            
+            document.getElementById('modal-content').innerHTML = `
+                <div class="bg-nexus-bg rounded-lg p-4 mb-6">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <span class="text-2xl">${info.icon}</span>
+                            <div>
+                                <p class="text-nexus-text font-bold">${info.name}</p>
+                                <p class="text-nexus-text/50 text-sm">${formatPrice(prediction.current_price)}</p>
+                            </div>
+                        </div>
+                        <div class="${dirColor} text-lg font-bold">
+                            <span>${arrow}</span> ${direction}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            updateBetPreview();
+            document.getElementById('bet-modal').classList.remove('hidden');
+        }
+        
+        // Cerrar modal
+        function closeBetModal() {
+            document.getElementById('bet-modal').classList.add('hidden');
+            currentPrediction = null;
+        }
+        
+        // Actualizar preview de apuesta
+        function updateBetPreview() {
+            const amount = parseInt(document.getElementById('bet-amount').value);
+            document.getElementById('bet-amount-display').textContent = amount;
+            
+            // Calcular odds basados en confianza
+            const confidence = currentPrediction ? currentPrediction.confidence / 100 : 0.7;
+            const direction = document.getElementById('bet-direction').value;
+            const predDirection = currentPrediction ? currentPrediction.direction : 'SUBIR';
+            
+            let odds;
+            if (direction === predDirection) {
+                odds = 1.0 + (1.0 - confidence);  // Menor riesgo, menor recompensa
+            } else {
+                odds = 1.0 + confidence;  // Mayor riesgo, mayor recompensa
+            }
+            
+            const potential = Math.round(amount * odds);
+            
+            document.getElementById('bet-odds').textContent = odds.toFixed(2) + 'x';
+            document.getElementById('bet-potential').textContent = potential + ' pts';
+        }
+        
+        // Enviar apuesta
+        async function submitBet(event) {
+            event.preventDefault();
+            
+            const symbol = document.getElementById('bet-symbol').value;
+            const direction = document.getElementById('bet-direction').value;
+            const amount = parseInt(document.getElementById('bet-amount').value);
+            
+            // Por ahora, crear una predicción local (en producción vendría de la BD)
+            try {
+                // Primero necesitamos crear la predicción en la BD
+                // Esto es simplificado - en producción habría un flujo diferente
+                alert(`Apuesta registrada!\n\n${symbol}: ${direction}\nPuntos: ${amount}\n\nEsta funcionalidad requiere predicciones activas en la base de datos.`);
+                closeBetModal();
+            } catch (error) {
+                alert('Error al crear apuesta: ' + error.message);
+            }
+        }
+        
+        // Actualizar puntos del usuario
+        async function updateUserPoints() {
+            try {
+                const response = await fetch(`${API_BASE}/api/user/${USER_ID}/summary`);
+                if (response.ok) {
+                    const data = await response.json();
+                    document.querySelector('#user-points span:nth-child(2)').textContent = 
+                        data.nexus_points.toFixed(0);
+                }
+            } catch (error) {
+                console.error('Error fetching user points:', error);
+            }
+        }
+        
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadPredictions();
+            await updateUserPoints();
+        });
+        
+        // Cerrar modal con Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeBetModal();
+        });
+    </script>
+</body>
+</html>
