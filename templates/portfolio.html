@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} - NEXUS</title>
+    
+    <!-- TailwindCSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts - JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'nexus-bg': '#0d1117',
+                        'nexus-card': '#161b22',
+                        'nexus-border': '#30363d',
+                        'nexus-text': '#c9d1d9',
+                        'nexus-green': '#3fb950',
+                        'nexus-red': '#f85149',
+                        'nexus-blue': '#58a6ff',
+                        'nexus-yellow': '#d29922',
+                        'nexus-purple': '#a371f7'
+                    },
+                    fontFamily: {
+                        'mono': ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background-color: #0d1117;
+            color: #c9d1d9;
+        }
+        .glow-blue { box-shadow: 0 0 30px rgba(88, 166, 255, 0.1); }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Header -->
+    <header class="bg-nexus-card border-b border-nexus-border px-6 py-4">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <a href="/" class="text-2xl font-bold text-nexus-blue">NEXUS</a>
+                <span class="text-xs text-nexus-text/50 bg-nexus-border/50 px-2 py-1 rounded">v1.0.0</span>
+            </div>
+            
+            <nav class="flex items-center space-x-6">
+                <a href="/" class="text-nexus-text/70 hover:text-nexus-text transition">Dashboard</a>
+                <a href="/predictions" class="text-nexus-text/70 hover:text-nexus-text transition">Predicciones</a>
+                <a href="/portfolio" class="text-nexus-blue hover:text-nexus-blue/80 transition">Portfolio</a>
+            </nav>
+            
+            <div class="flex items-center space-x-4">
+                <div id="user-points" class="flex items-center space-x-2 bg-nexus-bg px-3 py-2 rounded-lg border border-nexus-border">
+                    <span class="text-nexus-yellow">&#9733;</span>
+                    <span class="text-nexus-text font-semibold">--</span>
+                    <span class="text-nexus-text/50 text-xs">puntos</span>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-6 py-8">
+        <h1 class="text-2xl font-bold text-nexus-text mb-8">Mi Portfolio</h1>
+        
+        <!-- Balance Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            <!-- Nexus Points -->
+            <div class="bg-nexus-card border border-nexus-border rounded-xl p-6 glow-blue">
+                <div class="flex items-center space-x-3 mb-4">
+                    <div class="w-10 h-10 bg-nexus-yellow/20 rounded-full flex items-center justify-center">
+                        <span class="text-nexus-yellow text-xl">&#9733;</span>
+                    </div>
+                    <span class="text-nexus-text/70">Nexus Points</span>
+                </div>
+                <p id="points-balance" class="text-3xl font-bold text-nexus-text mb-2">--</p>
+                <p class="text-nexus-text/50 text-sm">= <span id="points-value">$--</span> USD</p>
+            </div>
+            
+            <!-- Fiat Balance -->
+            <div class="bg-nexus-card border border-nexus-border rounded-xl p-6">
+                <div class="flex items-center space-x-3 mb-4">
+                    <div class="w-10 h-10 bg-nexus-green/20 rounded-full flex items-center justify-center">
+                        <span class="text-nexus-green text-xl">$</span>
+                    </div>
+                    <span class="text-nexus-text/70">Saldo Fiat</span>
+                </div>
+                <p id="fiat-balance" class="text-3xl font-bold text-nexus-green mb-2">$--</p>
+                <p class="text-nexus-text/50 text-sm">Disponible para retiro</p>
+            </div>
+            
+            <!-- Total Value -->
+            <div class="bg-nexus-card border border-nexus-border rounded-xl p-6">
+                <div class="flex items-center space-x-3 mb-4">
+                    <div class="w-10 h-10 bg-nexus-purple/20 rounded-full flex items-center justify-center">
+                        <span class="text-nexus-purple text-xl">&#8721;</span>
+                    </div>
+                    <span class="text-nexus-text/70">Valor Total</span>
+                </div>
+                <p id="total-value" class="text-3xl font-bold text-nexus-purple mb-2">$--</p>
+                <p class="text-nexus-text/50 text-sm">Portfolio completo</p>
+            </div>
+        </div>
+        
+        <!-- Actions & Stats -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
+            <!-- Withdrawal Comparison -->
+            <div class="bg-nexus-card border border-nexus-border rounded-xl p-6">
+                <h2 class="text-lg font-semibold text-nexus-text mb-6">Comparar Retiros</h2>
+                
+                <div class="mb-6">
+                    <label class="block text-nexus-text/70 text-sm mb-2">Puntos a retirar</label>
+                    <input type="number" id="withdrawal-amount" value="500" min="200" step="100"
+                           class="w-full bg-nexus-bg border border-nexus-border rounded-lg px-4 py-3 text-nexus-text focus:border-nexus-blue focus:outline-none"
+                           onchange="compareWithdrawals()">
+                </div>
+                
+                <div id="withdrawal-comparison" class="space-y-4">
+                    <!-- Comparación se carga dinámicamente -->
+                </div>
+            </div>
+            
+            <!-- Betting History -->
+            <div class="bg-nexus-card border border-nexus-border rounded-xl p-6">
+                <h2 class="text-lg font-semibold text-nexus-text mb-6">Historial de Apuestas</h2>
+                
+                <div id="bets-list" class="space-y-3 max-h-80 overflow-y-auto">
+                    <p class="text-nexus-text/50 text-center py-8">Cargando historial...</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <button onclick="watchAd()" class="bg-nexus-card hover:bg-nexus-border/30 border border-nexus-border rounded-lg p-4 text-left transition group">
+                <div class="flex items-center space-x-3 mb-2">
+                    <span class="text-2xl">&#127916;</span>
+                    <span class="text-nexus-text font-semibold group-hover:text-nexus-blue transition">Ver Anuncio</span>
+                </div>
+                <p class="text-nexus-text/50 text-sm">Gana +10 puntos por cada anuncio visto</p>
+            </button>
+            
+            <button onclick="processWithdrawal()" class="bg-nexus-card hover:bg-nexus-border/30 border border-nexus-green/30 rounded-lg p-4 text-left transition group">
+                <div class="flex items-center space-x-3 mb-2">
+                    <span class="text-2xl">&#128176;</span>
+                    <span class="text-nexus-text font-semibold group-hover:text-nexus-green transition">Retirar a Kraken</span>
+                </div>
+                <p class="text-nexus-text/50 text-sm">0% comisión + 5% bonus en puntos</p>
+            </button>
+        </div>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="border-t border-nexus-border mt-12 py-6">
+        <div class="max-w-7xl mx-auto px-6 flex items-center justify-between text-nexus-text/50 text-sm">
+            <p>&copy; 2026 NEXUS. Predicciones Geopolíticas con IA.</p>
+            <div class="flex items-center space-x-4">
+                <span>Nivel: <span id="rep-level" class="text-nexus-blue">--</span></span>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- JavaScript -->
+    <script>
+        const API_BASE = '';
+        const USER_ID = 1;
+        
+        // Cargar datos del usuario
+        async function loadUserData() {
+            try {
+                const response = await fetch(`${API_BASE}/api/user/${USER_ID}/summary`);
+                
+                if (!response.ok) {
+                    // Usuario no existe, intentar crear
+                    await createDefaultUser();
+                    return;
+                }
+                
+                const data = await response.json();
+                
+                document.getElementById('points-balance').textContent = data.nexus_points.toFixed(0);
+                document.getElementById('points-value').textContent = '$' + (data.nexus_points * 0.01).toFixed(2);
+                document.getElementById('fiat-balance').textContent = '$' + data.fiat_balance.toFixed(2);
+                document.getElementById('total-value').textContent = '$' + data.total_value_usd.toFixed(2);
+                document.getElementById('rep-level').textContent = data.reputation_level;
+                document.querySelector('#user-points span:nth-child(2)').textContent = data.nexus_points.toFixed(0);
+            } catch (error) {
+                console.error('Error loading user data:', error);
+            }
+        }
+        
+        // Crear usuario por defecto
+        async function createDefaultUser() {
+            try {
+                const response = await fetch(`${API_BASE}/api/user/create?email=demo@nexus.com`, {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    await loadUserData();
+                }
+            } catch (error) {
+                console.error('Error creating user:', error);
+            }
+        }
+        
+        // Comparar métodos de retiro
+        async function compareWithdrawals() {
+            const amount = document.getElementById('withdrawal-amount').value || 500;
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/withdrawal/compare/${amount}`);
+                const data = await response.json();
+                
+                const container = document.getElementById('withdrawal-comparison');
+                
+                const paypalHtml = data.paypal.available ? `
+                    <div class="bg-nexus-bg rounded-lg p-4 border border-nexus-red/30">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-nexus-text font-semibold">PayPal</span>
+                            <span class="text-nexus-red text-sm">-10% comisión</span>
+                        </div>
+                        <p class="text-nexus-text/70 text-sm">Comisión: ${data.paypal.fee_points} pts</p>
+                        <p class="text-nexus-text/70 text-sm">Recibes: <span class="text-nexus-red">${data.paypal.net_points} pts</span></p>
+                        <p class="text-nexus-text font-semibold mt-2">= $${data.paypal.fiat_received?.toFixed(2) || '--'} USD</p>
+                    </div>
+                ` : `
+                    <div class="bg-nexus-bg rounded-lg p-4 border border-nexus-border opacity-50">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-nexus-text font-semibold">PayPal</span>
+                            <span class="text-nexus-red text-xs">No disponible</span>
+                        </div>
+                        <p class="text-nexus-text/50 text-sm">${data.paypal.error || 'Mínimo $5.00 USD'}</p>
+                    </div>
+                `;
+                
+                const krakenHtml = data.kraken.available ? `
+                    <div class="bg-nexus-bg rounded-lg p-4 border border-nexus-green/50 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 bg-nexus-green text-black text-xs px-2 py-1 rounded-bl font-semibold">
+                            RECOMENDADO
+                        </div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-nexus-text font-semibold">Kraken Partner</span>
+                            <span class="text-nexus-green text-sm">+5% bonus</span>
+                        </div>
+                        <p class="text-nexus-text/70 text-sm">Comisión: 0 pts</p>
+                        <p class="text-nexus-text/70 text-sm">Bonus: <span class="text-nexus-green">+${data.kraken.bonus_points} pts</span></p>
+                        <p class="text-nexus-text/70 text-sm">Recibes: <span class="text-nexus-green font-semibold">${data.kraken.net_points} pts</span></p>
+                        <p class="text-nexus-green font-bold mt-2">= $${data.kraken.fiat_received?.toFixed(2) || '--'} USD</p>
+                    </div>
+                ` : `
+                    <div class="bg-nexus-bg rounded-lg p-4 border border-nexus-border">
+                        <p class="text-nexus-text/50 text-sm">${data.kraken.error || 'Mínimo $2.00 USD'}</p>
+                    </div>
+                `;
+                
+                container.innerHTML = paypalHtml + krakenHtml;
+            } catch (error) {
+                console.error('Error comparing withdrawals:', error);
+            }
+        }
+        
+        // Cargar historial de apuestas
+        async function loadBetsHistory() {
+            try {
+                const response = await fetch(`${API_BASE}/api/user/${USER_ID}/bets`);
+                const data = await response.json();
+                
+                const container = document.getElementById('bets-list');
+                
+                if (data.bets.length === 0) {
+                    container.innerHTML = `
+                        <p class="text-nexus-text/50 text-center py-8">
+                            No tienes apuestas aún.<br>
+                            <a href="/predictions" class="text-nexus-blue hover:underline">Ver predicciones</a>
+                        </p>
+                    `;
+                    return;
+                }
+                
+                container.innerHTML = data.bets.map(bet => {
+                    const resultColor = bet.result === 'GANO' ? 'text-nexus-green' : 
+                                       bet.result === 'PERDIO' ? 'text-nexus-red' : 'text-nexus-yellow';
+                    const resultIcon = bet.result === 'GANO' ? '&#10003;' : 
+                                      bet.result === 'PERDIO' ? '&#10007;' : '&#8987;';
+                    
+                    return `
+                        <div class="flex items-center justify-between p-3 bg-nexus-bg rounded-lg">
+                            <div>
+                                <p class="text-nexus-text font-semibold">Predicción #${bet.prediction_id}</p>
+                                <p class="text-nexus-text/50 text-xs">${new Date(bet.created_at).toLocaleDateString()}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-nexus-text">${bet.points} pts</p>
+                                <p class="${resultColor} text-sm">${resultIcon} ${bet.result}</p>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Error loading bets:', error);
+            }
+        }
+        
+        // Ver anuncio
+        async function watchAd() {
+            try {
+                const response = await fetch(`${API_BASE}/api/reward/ad/${USER_ID}`, { method: 'POST' });
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert(`+${data.points_awarded} puntos ganados!\nNuevo saldo: ${data.new_points_balance.toFixed(0)} puntos`);
+                    await loadUserData();
+                }
+            } catch (error) {
+                alert('Error al procesar recompensa');
+            }
+        }
+        
+        // Procesar retiro
+        function processWithdrawal() {
+            alert('Función de retiro Kraken Partner próximamente disponible.\n\nBeneficios:\n- 0% comisión\n- +5% bonus en puntos\n- Mínimo: $2.00 USD');
+        }
+        
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadUserData();
+            await compareWithdrawals();
+            await loadBetsHistory();
+        });
+    </script>
+</body>
+</html>
